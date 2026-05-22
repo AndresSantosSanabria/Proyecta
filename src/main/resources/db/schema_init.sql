@@ -133,6 +133,7 @@ CREATE TABLE IF NOT EXISTS reporte_config (
 CREATE TABLE IF NOT EXISTS proyecto (
     proyecto_id             VARCHAR(30)     PRIMARY KEY,
     nombre                  VARCHAR(300)    NOT NULL,
+    director_username       VARCHAR(100),
     dependencia             VARCHAR(200),
     director_nombre         VARCHAR(120),
     director_correo          VARCHAR(200),
@@ -192,6 +193,8 @@ CREATE TABLE IF NOT EXISTS hito (
 -- 3.3 entregable
 CREATE TABLE IF NOT EXISTS entregable (
     entregable_id       SERIAL          PRIMARY KEY,
+    creado_por          VARCHAR(100),
+    modificado_por      VARCHAR(100),
     nombre              VARCHAR(300)    NOT NULL,
     ponderacion         NUMERIC(5, 2)   NOT NULL,
     estado              VARCHAR(30),
@@ -256,6 +259,9 @@ CREATE TABLE IF NOT EXISTS actas_cierre (
 -- ============================================================
 
 -- Proyecto
+ALTER TABLE proyecto ADD COLUMN IF NOT EXISTS creado_por VARCHAR(100);;
+ALTER TABLE proyecto ADD COLUMN IF NOT EXISTS modificado_por VARCHAR(100);;
+ALTER TABLE proyecto ADD COLUMN IF NOT EXISTS director_username VARCHAR(100);;
 ALTER TABLE proyecto ADD COLUMN IF NOT EXISTS director_nombre VARCHAR(120);;
 ALTER TABLE proyecto ADD COLUMN IF NOT EXISTS director_correo VARCHAR(200);;
 ALTER TABLE proyecto ADD COLUMN IF NOT EXISTS tiene_plan_comunicaciones BOOLEAN NOT NULL DEFAULT FALSE;;
@@ -286,6 +292,8 @@ ALTER TABLE hito ADD COLUMN IF NOT EXISTS nombre VARCHAR(150);;
 ALTER TABLE hito ADD COLUMN IF NOT EXISTS estado_revision VARCHAR(30) DEFAULT 'PENDIENTE';;
 
 -- Entregable
+ALTER TABLE entregable ADD COLUMN IF NOT EXISTS creado_por VARCHAR(100);;
+ALTER TABLE entregable ADD COLUMN IF NOT EXISTS modificado_por VARCHAR(100);;
 ALTER TABLE entregable ADD COLUMN IF NOT EXISTS estado VARCHAR(30);;
 ALTER TABLE entregable ADD COLUMN IF NOT EXISTS fecha_entrega_real DATE;;
 ALTER TABLE entregable ADD COLUMN IF NOT EXISTS estado_config_id INTEGER REFERENCES estado_entregable_config(estado_entregable_id);;
@@ -297,6 +305,8 @@ ALTER TABLE riesgos ADD COLUMN IF NOT EXISTS puntaje INTEGER;;
 ALTER TABLE riesgos ADD COLUMN IF NOT EXISTS estado_config_id INTEGER REFERENCES estado_riesgo_config(estado_riesgo_id);;
 
 -- Proyecto
+ALTER TABLE proyecto ADD COLUMN IF NOT EXISTS creado_por VARCHAR(100);;
+ALTER TABLE proyecto ADD COLUMN IF NOT EXISTS modificado_por VARCHAR(100);;
 ALTER TABLE proyecto ADD COLUMN IF NOT EXISTS estado_config_id INTEGER REFERENCES estado_proyecto_config(estado_proyecto_id);;
 ALTER TABLE proyecto ADD COLUMN IF NOT EXISTS estrategia_peti_config_id INTEGER REFERENCES estrategia_peti_config(estrategia_peti_id);;
 

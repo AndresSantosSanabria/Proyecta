@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/proyectos")
 @Tag(name = "Módulo 2 — Proyectos", description = "Endpoints para la gestión de proyectos TIC")
-@PreAuthorize("hasRole('app_access')")
 public class ProyectoController implements com.proyecta.api_gestion.controller.interfaces.IProyectoController {
 
     private final ProyectoService proyectoService;
@@ -30,6 +29,7 @@ public class ProyectoController implements com.proyecta.api_gestion.controller.i
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('admin', 'gestor_tic', 'director_proyecto', 'auditor', 'consulta')")
     public ResponseEntity<ApiResponse<Page<ProyectoListDTO>>> listarProyectos(
             String nombre, String codigo, String dependencia, EstadoProyecto estado, Boolean peti,
             @ParameterObject @PageableDefault(size = 10, sort = "id") Pageable pageable) {
@@ -38,16 +38,19 @@ public class ProyectoController implements com.proyecta.api_gestion.controller.i
     }
 
     @Override
+    @PreAuthorize("@securityEvaluator.canAccessProyecto(authentication, #id)")
     public ResponseEntity<ApiResponse<ProyectoResponseDTO>> obtenerProyecto(@PathVariable String id) {
         return ResponseEntity.ok(ApiResponse.success(proyectoService.obtenerPorId(id), "Detalle del proyecto obtenido"));
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('admin', 'director_proyecto')")
     public ResponseEntity<ApiResponse<ProyectoCreatedDTO>> crearProyecto(@Valid @RequestBody ProyectoCreateDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.created(proyectoService.crearProyecto(dto), "Proyecto creado exitosamente"));
     }
 
     @Override
+    @PreAuthorize("@securityEvaluator.canEditProyecto(authentication, #id)")
     public ResponseEntity<ApiResponse<ProyectoResponseDTO>> actualizarProyecto(
             @PathVariable String id,
             @Valid @RequestBody ProyectoUpdateDTO dto) {
@@ -55,33 +58,39 @@ public class ProyectoController implements com.proyecta.api_gestion.controller.i
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('admin', 'gestor_tic', 'director_proyecto', 'auditor', 'consulta')")
     public ResponseEntity<ApiResponse<DashboardDTO>> obtenerDashboard() {
         return ResponseEntity.ok(ApiResponse.success(proyectoService.obtenerDashboard(), "Métricas del dashboard obtenidas"));
     }
 
     @Override
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<Void> eliminarProyecto(String id) {
         proyectoService.eliminarProyecto(id);
         return ResponseEntity.noContent().build();
     }
 
     @Override
+    @PreAuthorize("@securityEvaluator.canAccessProyecto(authentication, #id)")
     public ResponseEntity<ApiResponse<ProyectoResumenDTO>> obtenerResumen(String id) {
         return ResponseEntity.ok(ApiResponse.success(proyectoService.obtenerResumen(id), "Resumen del proyecto obtenido"));
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('admin', 'gestor_tic')")
     public ResponseEntity<Void> cerrarProyecto(String id) {
         proyectoService.cerrarProyecto(id);
         return ResponseEntity.ok().build();
     }
 
     @Override
+    @PreAuthorize("@securityEvaluator.canAccessProyecto(authentication, #id)")
     public ResponseEntity<ApiResponse<Furag>> obtenerFurag(String id) {
         return ResponseEntity.ok(ApiResponse.success(proyectoService.obtenerFurag(id), "FURAG obtenido"));
     }
 
     @Override
+    @PreAuthorize("@securityEvaluator.canEditProyecto(authentication, #id)")
     public ResponseEntity<Void> actualizarFurag(String id, Furag furag) {
         proyectoService.actualizarFurag(id, furag);
         return ResponseEntity.ok().build();
@@ -89,6 +98,7 @@ public class ProyectoController implements com.proyecta.api_gestion.controller.i
 
     @Override
     @PostMapping("/recalcular-avances")
+    @PreAuthorize("hasRole('admin')")
     public ResponseEntity<ApiResponse<Void>> recalcularAvances() {
         proyectoService.recalcularAvances();
         return ResponseEntity.ok(ApiResponse.success("Avances recalculados exitosamente"));

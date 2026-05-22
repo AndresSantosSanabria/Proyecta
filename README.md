@@ -62,3 +62,19 @@ Flujo:
 
 En desarrollo, el backend permite `http://localhost:5173`. Si el frontend usa otro origen, ajusta `gob.security.cors.allowed-origins`.
 
+## Ejecucion
+
+Desde la raiz del proyecto puedes usar:
+
+```powershell
+.\mvnw.cmd spring-boot:run
+```
+
+O, si prefieres llamar al Maven incluido directamente:
+
+```powershell
+.\apache-maven-3.9.14\bin\mvn.cmd spring-boot:run
+```
+
+La aplicacion escucha en `http://localhost:8082`.
+

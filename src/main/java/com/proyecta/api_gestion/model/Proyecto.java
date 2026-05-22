@@ -10,15 +10,30 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @Table(name = "proyecto")
+@EntityListeners(AuditingEntityListener.class)
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Proyecto {
 
     @Id
     @Column(name = "proyecto_id", length = 30, nullable = false, updatable = false)
     private String id; // Formato IS-PROY-CUN-NNN.
+
+    @Column(name = "director_username", length = 100)
+    private String directorUsername;
+
+    @CreatedBy
+    @Column(name = "creado_por", updatable = false, length = 100)
+    private String creadoPor;
+
+    @LastModifiedBy
+    @Column(name = "modificado_por", length = 100)
+    private String modificadoPor;
 
     @Column(nullable = false, length = 300)
     private String nombre;
@@ -111,6 +126,15 @@ public class Proyecto {
     // Manual Getters and Setters
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
+
+    public String getDirectorUsername() { return directorUsername; }
+    public void setDirectorUsername(String directorUsername) { this.directorUsername = directorUsername; }
+
+    public String getCreadoPor() { return creadoPor; }
+    public void setCreadoPor(String creadoPor) { this.creadoPor = creadoPor; }
+
+    public String getModificadoPor() { return modificadoPor; }
+    public void setModificadoPor(String modificadoPor) { this.modificadoPor = modificadoPor; }
 
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }

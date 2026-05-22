@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("/api/v1/proyectos")
@@ -37,6 +38,7 @@ public class AvanceProyectoController implements IAvanceProyectoController {
 
     @Override
     @GetMapping("/{proyectoId}/avance")
+    @PreAuthorize("@securityEvaluator.canAccessProyecto(authentication, #proyectoId)")
     public ResponseEntity<ApiResponse<ProyectoAvanceResponseDTO>> getAvanceProyecto(
             @PathVariable String proyectoId) {
         ProyectoAvanceResponseDTO detalle = proyectoAvanceService.obtenerAvanceDetallado(proyectoId);
@@ -45,6 +47,7 @@ public class AvanceProyectoController implements IAvanceProyectoController {
 
     @Override
     @PostMapping(value = "/{proyectoId}/avance/entregables/{entregableId}/completar", consumes = "multipart/form-data")
+    @PreAuthorize("@securityEvaluator.canEditProyecto(authentication, #proyectoId)")
     public ResponseEntity<ApiResponse<EntregableConformidadResponseDTO>> marcarCompletado(
             @PathVariable String proyectoId,
             @PathVariable Integer entregableId,
@@ -57,6 +60,7 @@ public class AvanceProyectoController implements IAvanceProyectoController {
 
     @Override
     @PatchMapping(value = "/{proyectoId}/avance/entregables/{entregableId}", consumes = "multipart/form-data")
+    @PreAuthorize("@securityEvaluator.canApproveEntregable(authentication)")
     public ResponseEntity<ApiResponse<EntregableConformidadResponseDTO>> marcarConformidad(
             @PathVariable String proyectoId,
             @PathVariable Integer entregableId,
@@ -69,6 +73,7 @@ public class AvanceProyectoController implements IAvanceProyectoController {
     }
 
     @GetMapping("/{proyectoId}/avance/entregables/{entregableId}/evidencia")
+    @PreAuthorize("@securityEvaluator.canAccessProyecto(authentication, #proyectoId)")
     public ResponseEntity<Resource> descargarEvidencia(
             @PathVariable String proyectoId,
             @PathVariable Integer entregableId) {

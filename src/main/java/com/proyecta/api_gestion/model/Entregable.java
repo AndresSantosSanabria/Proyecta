@@ -6,9 +6,13 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @Table(name = "entregable")
+@EntityListeners(AuditingEntityListener.class)
 @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Entregable {
 
@@ -16,6 +20,14 @@ public class Entregable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "entregable_id")
     private Integer id;
+
+    @CreatedBy
+    @Column(name = "creado_por", updatable = false, length = 100)
+    private String creadoPor;
+
+    @LastModifiedBy
+    @Column(name = "modificado_por", length = 100)
+    private String modificadoPor;
 
     @Column(nullable = false, length = 300)
     private String nombre;
@@ -107,6 +119,12 @@ public class Entregable {
     // Getters and Setters
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
+
+    public String getCreadoPor() { return creadoPor; }
+    public void setCreadoPor(String creadoPor) { this.creadoPor = creadoPor; }
+
+    public String getModificadoPor() { return modificadoPor; }
+    public void setModificadoPor(String modificadoPor) { this.modificadoPor = modificadoPor; }
 
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }

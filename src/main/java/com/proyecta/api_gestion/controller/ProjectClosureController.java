@@ -9,6 +9,7 @@ import com.proyecta.api_gestion.service.interfaces.ProjectClosureService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.Set;
 
@@ -30,6 +31,7 @@ public class ProjectClosureController implements IProjectClosureController {
 
     @Override
     @PostMapping("/{id}/cierre")
+    @PreAuthorize("hasAnyRole('admin', 'gestor_tic')")
     public ResponseEntity<CierreProyectoResponse> cerrarProyecto(
             @PathVariable String id,
             @Valid @RequestBody CierreProyectoRequest request) {

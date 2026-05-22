@@ -15,7 +15,6 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/proyectos")
-@PreAuthorize("hasRole('app_access')")
 public class RiesgoController implements IRiesgoController {
 
     private final IRiesgoService riesgoService;
@@ -26,6 +25,7 @@ public class RiesgoController implements IRiesgoController {
 
     @Override
     @GetMapping("/{proyectoId}/riesgos")
+    @PreAuthorize("@securityEvaluator.canAccessProyecto(authentication, #proyectoId)")
     public ResponseEntity<ApiResponse<RiesgoListResponseDTO>> listarRiesgos(@PathVariable String proyectoId) {
         RiesgoListResponseDTO riesgos = riesgoService.getRisksByProject(proyectoId);
         return ResponseEntity.ok(ApiResponse.success(riesgos, "Matriz de riesgos recuperada con éxito"));
@@ -33,6 +33,7 @@ public class RiesgoController implements IRiesgoController {
 
     @Override
     @PostMapping("/{proyectoId}/riesgos")
+    @PreAuthorize("@securityEvaluator.canEditProyecto(authentication, #proyectoId)")
     public ResponseEntity<ApiResponse<RiesgoCreatedResponseDTO>> crearRiesgo(
             @PathVariable String proyectoId, 
             @Valid @RequestBody RiesgoRequestDTO requestDto) {
@@ -43,6 +44,7 @@ public class RiesgoController implements IRiesgoController {
 
     @Override
     @PutMapping("/{proyectoId}/riesgos/{riesgoId}")
+    @PreAuthorize("@securityEvaluator.canEditProyecto(authentication, #proyectoId)")
     public ResponseEntity<ApiResponse<RiesgoResponseDTO>> actualizarRiesgo(
             @PathVariable String proyectoId, 
             @PathVariable Integer riesgoId, 
@@ -53,6 +55,7 @@ public class RiesgoController implements IRiesgoController {
 
     @Override
     @DeleteMapping("/{proyectoId}/riesgos/{riesgoId}")
+    @PreAuthorize("@securityEvaluator.canEditProyecto(authentication, #proyectoId)")
     public ResponseEntity<Void> eliminarRiesgo(
             @PathVariable String proyectoId, 
             @PathVariable Integer riesgoId) {
@@ -62,6 +65,7 @@ public class RiesgoController implements IRiesgoController {
 
     @Override
     @PatchMapping("/{proyectoId}/riesgos/{riesgoId}/tratamiento")
+    @PreAuthorize("@securityEvaluator.canEditProyecto(authentication, #proyectoId)")
     public ResponseEntity<ApiResponse<Void>> verificarTratamiento(
             @PathVariable String proyectoId, 
             @PathVariable Integer riesgoId, 

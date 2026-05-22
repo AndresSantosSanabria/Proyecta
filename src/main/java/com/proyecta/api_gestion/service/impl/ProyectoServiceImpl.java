@@ -20,6 +20,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @Service
 public class ProyectoServiceImpl implements ProyectoService {
@@ -35,6 +37,16 @@ public class ProyectoServiceImpl implements ProyectoService {
     @Override
     @Transactional(readOnly = true)
     public Page<ProyectoListDTO> listarProyectos(String nombre, String codigo, String dependencia, EstadoProyecto estado, Boolean peti, Pageable pageable) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean isTransversal = auth != null && auth.getAuthorities().stream()
+                .anyMatch(a -> {
+                    String role = a.getAuthority();
+                    return role.equals("ROLE_admin") || role.equals("ROLE_gestor_tic") || role.equals("ROLE_auditor") || role.equals("ROLE_consulta");
+                });
+        boolean isDirector = auth != null && auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_director_proyecto"));
+        String usernameActual = auth != null ? auth.getName() : null;
+
         Specification<Proyecto> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             if (nombre != null && !nombre.isBlank()) {
@@ -51,6 +63,9 @@ public class ProyectoServiceImpl implements ProyectoService {
             }
             if (peti != null) {
                 predicates.add(cb.equal(root.get("peti"), peti));
+            }
+            if (isDirector && !isTransversal && usernameActual != null) {
+                predicates.add(cb.equal(root.get("directorUsername"), usernameActual));
             }
             return cb.and(predicates.toArray(new Predicate[0]));
         };
@@ -77,6 +92,12 @@ public class ProyectoServiceImpl implements ProyectoService {
 
         Proyecto proyecto = new Proyecto();
         proyecto.setId(generarCodigo());
+        
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated()) {
+            proyecto.setDirectorUsername(auth.getName());
+        }
+
         proyecto.setNombre(dto.nombre());
         proyecto.setDependencia(dto.dependencia());
         proyecto.setDirector(dto.director());

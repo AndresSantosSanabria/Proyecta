@@ -27,8 +27,8 @@ public class Usuario {
     @Column(length = 20)
     private Rol rol;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "rol_config_id", referencedColumnName = "rol_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "rol_config_id", referencedColumnName = "rol_id", nullable = true)
     private RolConfig rolConfig;
 
     @Column(columnDefinition = "BOOLEAN DEFAULT TRUE")

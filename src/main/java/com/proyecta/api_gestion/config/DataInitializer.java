@@ -26,8 +26,8 @@ public class DataInitializer {
                 dataSeederService.seedAllData();
                 logger.info("✓ Datos semilla cargados exitosamente");
             } catch (Exception e) {
-                logger.error("✗ Error al cargar datos semilla", e);
-                throw new RuntimeException("Error en inicialización de datos", e);
+                logger.warn("⚠ Error al cargar datos semilla (continuando con la aplicación)", e);
+                // No lanzar excepción para permitir que la aplicación continúe
             }
         };
     }

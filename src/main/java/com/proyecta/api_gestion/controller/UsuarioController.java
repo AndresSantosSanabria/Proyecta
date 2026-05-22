@@ -3,6 +3,8 @@ package com.proyecta.api_gestion.controller;
 import com.proyecta.api_gestion.controller.interfaces.IUsuarioController;
 import com.proyecta.api_gestion.dto.common.ApiResponse;
 import com.proyecta.api_gestion.dto.user.UsuarioDTO;
+import com.proyecta.api_gestion.model.Usuario;
+import com.proyecta.api_gestion.security.AuthenticatedUserService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -20,21 +22,25 @@ import java.util.stream.Collectors;
 @PreAuthorize("hasRole('app_access')")
 public class UsuarioController implements IUsuarioController {
 
+    private final AuthenticatedUserService authenticatedUserService;
+
+    public UsuarioController(AuthenticatedUserService authenticatedUserService) {
+        this.authenticatedUserService = authenticatedUserService;
+    }
+
     @Override
     public ResponseEntity<ApiResponse<UsuarioDTO>> getMe(@AuthenticationPrincipal Jwt jwt, Authentication authentication) {
+        Usuario usuario = authenticatedUserService.registerAccess(jwt);
+        String correo = usuario.getCorreo();
         String nombre = firstNonBlank(
+                usuario.getNombre(),
                 jwt.getClaimAsString("name"),
-                jwt.getClaimAsString("preferred_username"),
-                "Usuario Keycloak");
-
-        String correo = firstNonBlank(
-                jwt.getClaimAsString("email"),
-                jwt.getClaimAsString("preferred_username"),
-                "");
+                correo);
 
         String rol = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .filter(authority -> authority.startsWith("ROLE_"))
+                .filter(authority -> !"ROLE_app_access".equals(authority))
                 .map(authority -> authority.substring("ROLE_".length()))
                 .sorted(Comparator.naturalOrder())
                 .collect(Collectors.joining(", "));
@@ -42,7 +48,7 @@ public class UsuarioController implements IUsuarioController {
         String dependencia = firstNonBlank(
                 jwt.getClaimAsString("department"),
                 jwt.getClaimAsString("organizational_unit"),
-                jwt.getClaimAsString("preferred_username"),
+                correo,
                 "No definida");
 
         UsuarioDTO user = new UsuarioDTO(nombre, correo, rol, dependencia);

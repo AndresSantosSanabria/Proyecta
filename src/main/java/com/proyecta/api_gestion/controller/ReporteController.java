@@ -7,6 +7,7 @@ import com.proyecta.api_gestion.service.interfaces.ReporteService;
 import com.proyecta.api_gestion.exception.ResourceNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 
@@ -23,6 +24,7 @@ public class ReporteController implements IReporteController {
 
     @Override
     @GetMapping("/configuracion")
+    @PreAuthorize("hasAnyRole('admin', 'gestor_tic', 'director_proyecto', 'auditor', 'consulta')")
     public ResponseEntity<ApiResponse<List<ReporteConfigDTO>>> getConfiguracion() {
         List<ReporteConfigDTO> config = reporteService.obtenerConfiguracionReportes();
         return ResponseEntity.ok(ApiResponse.success(config, "Configuración de reportes obtenida con éxito"));
@@ -30,6 +32,7 @@ public class ReporteController implements IReporteController {
 
     @Override
     @GetMapping("/vista-previa/{proyectoId}")
+    @PreAuthorize("@securityEvaluator.canAccessProyecto(authentication, #proyectoId)")
     public ResponseEntity<ApiResponse<ReporteVistaPreviaDTO>> getVistaPrevia(@PathVariable String proyectoId) {
         ReporteVistaPreviaDTO dto = reporteService.obtenerVistaPrevia(proyectoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado: " + proyectoId));
@@ -38,6 +41,7 @@ public class ReporteController implements IReporteController {
 
     @Override
     @GetMapping("/todos-los-proyectos")
+    @PreAuthorize("hasAnyRole('admin', 'gestor_tic', 'auditor', 'consulta')")
     public ResponseEntity<ApiResponse<List<ProyectoReporteResumenDTO>>> getTodosLosProyectos() {
         List<ProyectoReporteResumenDTO> reportes = reporteService.obtenerTodosLosProyectos();
         return ResponseEntity.ok(ApiResponse.success(reportes, "Reporte de todos los proyectos obtenido con éxito"));
@@ -45,6 +49,7 @@ public class ReporteController implements IReporteController {
 
     @Override
     @GetMapping("/proyectos-con-retrasos")
+    @PreAuthorize("hasAnyRole('admin', 'gestor_tic', 'auditor', 'consulta')")
     public ResponseEntity<ApiResponse<List<ProyectoReporteResumenDTO>>> getProyectosConRetrasos() {
         List<ProyectoReporteResumenDTO> reportes = reporteService.obtenerProyectosConRetrasos();
         return ResponseEntity.ok(ApiResponse.success(reportes, "Reporte de proyectos con retrasos obtenido con éxito"));
@@ -52,6 +57,7 @@ public class ReporteController implements IReporteController {
 
     @Override
     @GetMapping("/plan-comunicaciones/{proyectoId}")
+    @PreAuthorize("@securityEvaluator.canAccessProyecto(authentication, #proyectoId)")
     public ResponseEntity<ApiResponse<PlanComunicacionesDTO>> getPlanComunicaciones(@PathVariable String proyectoId) {
         PlanComunicacionesDTO dto = reporteService.obtenerPlanComunicaciones(proyectoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado: " + proyectoId));
@@ -60,6 +66,7 @@ public class ReporteController implements IReporteController {
 
     @Override
     @GetMapping("/furag/{proyectoId}")
+    @PreAuthorize("@securityEvaluator.canAccessProyecto(authentication, #proyectoId)")
     public ResponseEntity<ApiResponse<FuragReporteDTO>> getFurag(@PathVariable String proyectoId) {
         ReporteService service = reporteService;
         FuragReporteDTO dto = service.obtenerFurag(proyectoId)
@@ -69,12 +76,14 @@ public class ReporteController implements IReporteController {
 
     @Override
     @GetMapping("/riesgos/{proyectoId}")
+    @PreAuthorize("@securityEvaluator.canAccessProyecto(authentication, #proyectoId)")
     public ResponseEntity<ApiResponse<List<RiesgoReporteDTO>>> getRiesgos(@PathVariable String proyectoId) {
         List<RiesgoReporteDTO> riesgos = reporteService.obtenerRiesgos(proyectoId);
         return ResponseEntity.ok(ApiResponse.success(riesgos, "Reporte de riesgos obtenido con éxito"));
     }
 
     @Override
+    @PreAuthorize("@securityEvaluator.canAccessProyecto(authentication, #id)")
     public ResponseEntity<byte[]> descargarReporteProyectoPdf(String id) {
         byte[] content = reporteService.generarReporteProyectoPdf(id);
         return ResponseEntity.ok()
@@ -84,6 +93,7 @@ public class ReporteController implements IReporteController {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('admin', 'gestor_tic', 'auditor', 'consulta')")
     public ResponseEntity<byte[]> descargarReportePortafolioPdf() {
         byte[] content = reporteService.generarReportePortafolioPdf();
         return ResponseEntity.ok()
@@ -93,6 +103,7 @@ public class ReporteController implements IReporteController {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('admin', 'gestor_tic', 'auditor', 'consulta')")
     public ResponseEntity<byte[]> descargarReportePortafolioExcel() {
         byte[] content = reporteService.generarReportePortafolioExcel();
         return ResponseEntity.ok()
